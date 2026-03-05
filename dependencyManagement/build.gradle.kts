@@ -7,10 +7,10 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 val dependencyVersions = hashMapOf<String, String>()
 rootProject.extra["versions"] = dependencyVersions
 
-val otelSdkVersion = "1.55.0"
-val otelInstrumentationAlphaVersion = "2.21.0-alpha"
-val otelInstrumentationVersion = "2.21.0"
-val otelContribVersion = "1.48.0"
+val otelSdkVersion = "1.58.0"
+val otelInstrumentationAlphaVersion = "2.24.0-alpha"
+val otelInstrumentationVersion = "2.24.0"
+val otelContribVersion = "1.52.0"
 
 rootProject.extra["otelInstrumentationVersion"] = otelInstrumentationVersion
 rootProject.extra["otelInstrumentationAlphaVersion"] = otelInstrumentationAlphaVersion
@@ -61,7 +61,7 @@ val CORE_DEPENDENCIES = listOf(
 val DEPENDENCIES = listOf(
   "ch.qos.logback:logback-classic:1.3.16", // logback 1.4+ requires Java 11+
   "ch.qos.logback.contrib:logback-json-classic:0.1.5",
-  "commons-codec:commons-codec:1.20.0",
+  "commons-codec:commons-codec:1.21.0",
   "org.apache.commons:commons-text:1.15.0",
   "com.google.code.gson:gson:2.13.2",
   "com.azure:azure-core-test:1.26.2", // this is not included in azure-sdk-bom
