@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @AutoService(InstrumentationModule.class)
 public class MethodInstrumentationModule extends InstrumentationModule {
@@ -32,8 +33,12 @@ public class MethodInstrumentationModule extends InstrumentationModule {
   public MethodInstrumentationModule() {
     super("ai-methods");
 
+    String methodsConfig = getFromAiBootstrapConfig("getMethodsInclude");
+    if (methodsConfig == null) {
+      methodsConfig = ConfigPropertiesUtil.getString(TRACE_METHODS_CONFIG);
+    }
     Map<String, Set<String>> classMethodsToTrace =
-        MethodsConfigurationParser.parse(ConfigPropertiesUtil.getString(TRACE_METHODS_CONFIG));
+        MethodsConfigurationParser.parse(methodsConfig);
 
     typeInstrumentations =
         classMethodsToTrace.entrySet().stream()
@@ -56,5 +61,16 @@ public class MethodInstrumentationModule extends InstrumentationModule {
   @Override
   public List<TypeInstrumentation> typeInstrumentations() {
     return typeInstrumentations;
+  }
+
+  @Nullable
+  private static String getFromAiBootstrapConfig(String methodName) {
+    try {
+      Class<?> clazz =
+          Class.forName("com.microsoft.applicationinsights.agent.bootstrap.AiInternalInstrumentationConfig");
+      return (String) clazz.getMethod(methodName).invoke(null);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

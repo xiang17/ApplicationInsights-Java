@@ -8,6 +8,7 @@ import static com.microsoft.applicationinsights.agent.internal.diagnostics.MsgId
 
 import com.azure.monitor.opentelemetry.autoconfigure.implementation.utils.PropertyHelper;
 import com.google.auto.service.AutoService;
+import com.microsoft.applicationinsights.agent.bootstrap.AiInternalInstrumentationConfig;
 import com.microsoft.applicationinsights.agent.internal.common.FriendlyException;
 import com.microsoft.applicationinsights.agent.internal.configuration.Configuration;
 import com.microsoft.applicationinsights.agent.internal.configuration.Configuration.SelfDiagnostics;
@@ -36,6 +37,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -94,6 +96,7 @@ public class FirstEntryPoint implements LoggingCustomizer {
       configuration =
           ConfigurationBuilder.create(
               agentPath, rpConfiguration, System::getenv, System::getProperty);
+      initializeAiInternalInstrumentationConfig(configuration);
 
       String codelessSdkNamePrefix = getCodelessSdkNamePrefix();
       if (codelessSdkNamePrefix != null) {
@@ -203,6 +206,29 @@ public class FirstEntryPoint implements LoggingCustomizer {
           propsBuilder.append("(" + key + "=" + valueToDisplay + ")");
         });
     return propsBuilder.toString();
+  }
+
+  private static void initializeAiInternalInstrumentationConfig(Configuration configuration) {
+    AiInternalInstrumentationConfig.setMicrometerStepMillis(
+        Long.toString(TimeUnit.SECONDS.toMillis(configuration.metricIntervalSeconds)));
+    if (!configuration.preview.customInstrumentation.isEmpty()) {
+      StringBuilder sb = new StringBuilder();
+      for (Configuration.CustomInstrumentation customInstrumentation :
+          configuration.preview.customInstrumentation) {
+        if (sb.length() > 0) {
+          sb.append(';');
+        }
+        sb.append(customInstrumentation.className);
+        sb.append('[');
+        sb.append(customInstrumentation.methodName);
+        sb.append(']');
+      }
+      AiInternalInstrumentationConfig.setMethodsInclude(sb.toString());
+    } else {
+      AiInternalInstrumentationConfig.setMethodsInclude(null);
+    }
+    AiInternalInstrumentationConfig.setMicrometerNamespace(
+        configuration.instrumentation.micrometer.namespace);
   }
 
   @Override

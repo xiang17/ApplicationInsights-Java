@@ -16,8 +16,11 @@ public class AzureMonitorRegistryConfig implements StepRegistryConfig {
   public static final AzureMonitorRegistryConfig INSTANCE = new AzureMonitorRegistryConfig();
 
   private AzureMonitorRegistryConfig() {
-    String stepMillisStr =
-        ConfigPropertiesUtil.getString("applicationinsights.internal.micrometer.step.millis");
+    String stepMillisStr = getFromAiBootstrapConfig("getMicrometerStepMillis");
+    if (stepMillisStr == null) {
+      stepMillisStr =
+          ConfigPropertiesUtil.getString("applicationinsights.internal.micrometer.step.millis");
+    }
     Duration parsedStep = null;
     if (stepMillisStr != null) {
       try {
@@ -27,7 +30,11 @@ public class AzureMonitorRegistryConfig implements StepRegistryConfig {
       }
     }
     step = parsedStep != null ? parsedStep : Duration.ofSeconds(60);
-    namespace = ConfigPropertiesUtil.getString("applicationinsights.internal.micrometer.namespace");
+    String configuredNamespace = getFromAiBootstrapConfig("getMicrometerNamespace");
+    namespace =
+        configuredNamespace != null
+            ? configuredNamespace
+            : ConfigPropertiesUtil.getString("applicationinsights.internal.micrometer.namespace");
   }
 
   @Override
@@ -48,5 +55,16 @@ public class AzureMonitorRegistryConfig implements StepRegistryConfig {
   @Nullable
   public String namespace() {
     return namespace;
+  }
+
+  @Nullable
+  private static String getFromAiBootstrapConfig(String methodName) {
+    try {
+      Class<?> clazz =
+          Class.forName("com.microsoft.applicationinsights.agent.bootstrap.AiInternalInstrumentationConfig");
+      return (String) clazz.getMethod(methodName).invoke(null);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
