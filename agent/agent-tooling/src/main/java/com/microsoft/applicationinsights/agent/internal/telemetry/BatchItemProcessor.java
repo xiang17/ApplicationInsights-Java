@@ -9,11 +9,11 @@ import com.azure.core.util.logging.ClientLogger;
 import com.azure.monitor.opentelemetry.autoconfigure.implementation.logging.OperationLogger;
 import com.azure.monitor.opentelemetry.autoconfigure.implementation.models.TelemetryItem;
 import com.azure.monitor.opentelemetry.autoconfigure.implementation.pipeline.TelemetryItemExporter;
+import com.azure.monitor.opentelemetry.autoconfigure.implementation.utils.ThreadPoolUtils;
 import io.opentelemetry.api.logs.LoggerProvider;
 import io.opentelemetry.internal.shaded.jctools.queues.atomic.MpscAtomicArrayQueue;
 import io.opentelemetry.javaagent.bootstrap.CallDepth;
 import io.opentelemetry.sdk.common.CompletableResultCode;
-import io.opentelemetry.sdk.internal.DaemonThreadFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
@@ -68,7 +68,8 @@ public final class BatchItemProcessor {
             queue.capacity(),
             queueName);
 
-    Thread workerThread = new DaemonThreadFactory(WORKER_THREAD_NAME).newThread(worker);
+    Thread workerThread =
+        ThreadPoolUtils.createNamedDaemonThreadFactory(WORKER_THREAD_NAME).newThread(worker);
     workerThread.setUncaughtExceptionHandler((t, e) -> logger.error(e.getMessage(), e));
     workerThread.start();
   }
