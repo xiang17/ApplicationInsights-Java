@@ -56,6 +56,41 @@ The project uses Spotless for consistent code formatting. Apply formatting to al
 ./gradlew spotlessApply
 ```
 
+### Updating OpenTelemetry Dependencies
+
+When bumping OpenTelemetry packages, treat the OpenTelemetry ecosystem versions as a
+compatible set instead of updating a single artifact in isolation. Check the release notes
+for the matching versions across:
+
+- OpenTelemetry Java Instrumentation: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
+- OpenTelemetry Java: https://github.com/open-telemetry/opentelemetry-java/releases
+- OpenTelemetry Java Contrib: https://github.com/open-telemetry/opentelemetry-java-contrib/releases
+
+Update all locally pinned OpenTelemetry ecosystem versions that need to move together,
+including `otelSdkVersion`, `otelInstrumentationVersion`, `otelInstrumentationAlphaVersion`,
+`otelContribVersion`, and the OpenTelemetry Gradle plugins used by `buildSrc`. The
+OpenTelemetry Gradle plugin version must stay compatible with the `opentelemetry-javaagent-*`
+tooling artifacts used by instrumentation muzzle/codegen tasks; otherwise `byteBuddyJava`
+can fail with reflective constructor errors such as `MuzzleCodeGenerationPlugin.<init>`.
+
+After version changes, regenerate both dependency locks and license metadata:
+
+```bash
+./gradlew resolveAndLockAll --write-locks
+./gradlew generateLicenseReport
+```
+
+Verify the repository can build locally at minimum:
+
+```bash
+./gradlew assemble
+```
+
+Unit tests are optional for the local agent workflow; if running them, use one JDK version
+only unless the change specifically needs broader coverage. Do not run the full smoke test
+matrix locally for routine dependency bumps because it takes a very long time. Delegate smoke
+tests and broader JDK/environment coverage to GitHub Actions after pushing the PR.
+
 ## Project-Specific Conventions
 
 ### Build Conventions (buildSrc/)
