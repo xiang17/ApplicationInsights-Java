@@ -86,22 +86,17 @@ Recommended workflow for AI agents:
   If compatibility is ambiguous, state the assumption in the PR summary or final response.
 3. Update all matching version constants and build-tool pins together; do not leave
   `buildSrc` OpenTelemetry Gradle plugins on the previous instrumentation release.
-4. Regenerate dependency locks and license metadata after editing versions.
-5. Verify that the repository can at least build locally. Leave expensive smoke-test matrix
-  coverage to GitHub Actions unless the user explicitly asks for a focused smoke test.
-
-After version changes, regenerate both dependency locks and license metadata:
+4. Regenerate dependency locks and license metadata, then verify that the repository can at
+  least build locally:
 
 ```bash
 ./gradlew resolveAndLockAll --write-locks
 ./gradlew generateLicenseReport
-```
-
-Verify the repository can build locally at minimum:
-
-```bash
 ./gradlew assemble
 ```
+
+Leave expensive smoke-test matrix coverage to GitHub Actions unless the user explicitly asks
+for a focused smoke test.
 
 Unit tests are optional for the local agent workflow; if running them, use one JDK version
 only unless the change specifically needs broader coverage. Do not run the full smoke test

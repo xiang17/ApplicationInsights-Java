@@ -1,7 +1,7 @@
 ---
 description: "Bump OpenTelemetry dependency versions as a compatible ecosystem set"
 name: "Bump OpenTelemetry Dependencies"
-argument-hint: "Target OpenTelemetry Java Instrumentation, Java, or Contrib version, or latest compatible release set"
+argument-hint: "e.g. OpenTelemetry Java Instrumentation 2.x, OpenTelemetry Java 1.x, or latest compatible set"
 agent: "agent"
 ---
 
@@ -9,24 +9,13 @@ Bump OpenTelemetry dependencies in ApplicationInsights-Java.
 
 Target: ${input:targetVersion:OpenTelemetry Java Instrumentation <version>, OpenTelemetry Java <version>, OpenTelemetry Java Contrib <version>, or latest compatible release set}
 
-Follow the repository guidance in [.github/copilot-instructions.md](../copilot-instructions.md), especially the "Updating OpenTelemetry Dependencies" section.
+Use this as a short task request when assigning the work to a coding agent,
+Copilot CLI, or another AI agent. Replace `<version>` with the target release:
 
-Please:
+```text
+Use OpenTelemetry Java Instrumentation <version> as the anchor and infer compatible OpenTelemetry Java and OpenTelemetry Java Contrib versions. Follow the ApplicationInsights-Java OpenTelemetry dependency update instructions, regenerate required lock/license metadata, verify the repository builds, and leave the full smoke test matrix to CI.
+```
 
-1. Identify whether the target refers to OpenTelemetry Java Instrumentation, OpenTelemetry Java, OpenTelemetry Java Contrib, or the latest compatible ecosystem release set.
-2. Determine compatible OpenTelemetry Java, Java Instrumentation, and Java Contrib versions from upstream release notes, BOMs, and published dependency metadata:
-   - https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
-   - https://github.com/open-telemetry/opentelemetry-java/releases
-   - https://github.com/open-telemetry/opentelemetry-java-contrib/releases
-3. Update all local pinned OpenTelemetry versions together, including `otelSdkVersion`, `otelInstrumentationVersion`, `otelInstrumentationAlphaVersion`, `otelContribVersion`, and the OpenTelemetry Gradle plugins used by `buildSrc`.
-4. Regenerate dependency locks and license metadata:
-   ```bash
-   ./gradlew resolveAndLockAll --write-locks
-   ./gradlew generateLicenseReport
-   ```
-5. Verify the repository builds:
-   ```bash
-   ./gradlew assemble
-   ```
-6. Do not run the full smoke test matrix locally. Leave smoke tests and broader JDK/environment coverage to GitHub Actions unless a focused smoke test is explicitly requested.
-7. Summarize the compatibility assumption, files changed, generated metadata updates, and verification results.
+Use [Updating OpenTelemetry Dependencies](../copilot-instructions.md#updating-opentelemetry-dependencies) as the source of truth for compatibility lookup, version updates, generated metadata, build verification, and deferred test coverage.
+
+Treat the target as the anchor version unless it asks for the latest compatible release set. At completion, summarize the compatible versions chosen, files changed, generated metadata updates, build verification, and any coverage deferred to CI.
