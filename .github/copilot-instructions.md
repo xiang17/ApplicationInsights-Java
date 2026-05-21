@@ -75,8 +75,9 @@ Update all locally pinned OpenTelemetry ecosystem versions that need to move tog
 including `otelSdkVersion`, `otelInstrumentationVersion`, `otelInstrumentationAlphaVersion`,
 `otelContribVersion`, and the OpenTelemetry Gradle plugins used by `buildSrc`. The
 OpenTelemetry Gradle plugin version must stay compatible with the `opentelemetry-javaagent-*`
-tooling artifacts used by instrumentation muzzle/codegen tasks; otherwise `byteBuddyJava`
-can fail with reflective constructor errors such as `MuzzleCodeGenerationPlugin.<init>`.
+tooling artifacts used by instrumentation muzzle/codegen tasks. Version skew in this area can
+break build-time instrumentation generation in different ways; for example, `byteBuddyJava`
+may fail with reflective constructor errors such as `MuzzleCodeGenerationPlugin.<init>`.
 
 Recommended workflow for AI agents:
 
