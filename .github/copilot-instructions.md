@@ -59,8 +59,13 @@ The project uses Spotless for consistent code formatting. Apply formatting to al
 ### Updating OpenTelemetry Dependencies
 
 When bumping OpenTelemetry packages, treat the OpenTelemetry ecosystem versions as a
-compatible set instead of updating a single artifact in isolation. Check the release notes
-for the matching versions across:
+compatible set instead of updating a single artifact in isolation. This applies whether the
+request asks for the latest release or names only one target version, such as a specific
+OpenTelemetry Java Instrumentation or OpenTelemetry Java version. In that case, infer the
+compatible versions for the rest of the local OpenTelemetry ecosystem from upstream release
+notes, BOMs, and published dependency metadata instead of mixing unrelated latest versions.
+
+Check the release notes for the matching versions across:
 
 - OpenTelemetry Java Instrumentation: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
 - OpenTelemetry Java: https://github.com/open-telemetry/opentelemetry-java/releases
@@ -72,6 +77,18 @@ including `otelSdkVersion`, `otelInstrumentationVersion`, `otelInstrumentationAl
 OpenTelemetry Gradle plugin version must stay compatible with the `opentelemetry-javaagent-*`
 tooling artifacts used by instrumentation muzzle/codegen tasks; otherwise `byteBuddyJava`
 can fail with reflective constructor errors such as `MuzzleCodeGenerationPlugin.<init>`.
+
+Recommended workflow for AI agents:
+
+1. Identify the requested target version and whether it refers to OpenTelemetry Java,
+  OpenTelemetry Java Instrumentation, or OpenTelemetry Java Contrib.
+2. Look up the compatible release set across the three upstream projects before editing.
+  If compatibility is ambiguous, state the assumption in the PR summary or final response.
+3. Update all matching version constants and build-tool pins together; do not leave
+  `buildSrc` OpenTelemetry Gradle plugins on the previous instrumentation release.
+4. Regenerate dependency locks and license metadata after editing versions.
+5. Verify that the repository can at least build locally. Leave expensive smoke-test matrix
+  coverage to GitHub Actions unless the user explicitly asks for a focused smoke test.
 
 After version changes, regenerate both dependency locks and license metadata:
 
