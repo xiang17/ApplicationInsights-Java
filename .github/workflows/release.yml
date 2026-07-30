@@ -5,7 +5,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write  # for gh release create
     outputs:
       version: ${{ steps.create-github-release.outputs.version }}
     steps:
@@ -56,7 +57,6 @@ jobs:
           echo "version=$VERSION" >> ${GITHUB_OUTPUT}
 
   create-docs-pull-request:
-    permissions: write-all
     needs:
       - release
     uses: ./.github/workflows/reusable-create-docs-pull-request.yml
@@ -66,7 +66,9 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.XIANG17_TOKEN }}
 
   create-version-bump-pull-request:
-    permissions: write-all
+    permissions:
+      contents: write          # for git push
+      pull-requests: write     # for gh pr create
     needs:
       - release
     uses: ./.github/workflows/reusable-create-version-bump-pull-request.yml
