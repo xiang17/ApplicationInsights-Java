@@ -7,7 +7,7 @@ on:
 
 permissions:
   actions: read
-  contents: read
+  contents: write
   pull-requests: read
 
 env:
@@ -41,7 +41,7 @@ jobs:
             const {data: pr} = await github.rest.pulls.get({
               ...context.repo, pull_number: run.pull_requests[0].number
             });
-            if (pr.user.login !== 'dependabot[bot]' || pr.state !== 'open' ||
+            if (pr.user.login !== 'xiang17' || pr.state !== 'open' ||
                 pr.head.repo?.id !== context.payload.repository.id ||
                 pr.head.sha !== run.head_sha || pr.head.ref !== run.head_branch ||
                 pr.head.ref === context.payload.repository.default_branch) {
@@ -110,15 +110,6 @@ jobs:
           commit=$(git commit-tree "$(git write-tree)" -p "$SOURCE_SHA" -m "Update dependency locks and licenses")
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
-      - name: Generate GitHub App token
-        if: steps.patch.outputs.commit != ''
-        id: app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        with:
-          client-id: ${{ vars.AI_JAVA_HELPER_APP_CLIENT_ID }}
-          private-key: ${{ secrets.AI_JAVA_HELPER_APP_PRIVATE_KEY }}
-          permission-contents: write
-
       - name: Push generated commit
         if: steps.patch.outputs.commit != ''
         env:
@@ -127,7 +118,7 @@ jobs:
           PR_NUMBER: ${{ steps.source.outputs.number }}
           COMMIT: ${{ steps.patch.outputs.commit }}
           GH_TOKEN: ${{ github.token }}
-          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_TOKEN: ${{ github.token }}
         run: |
           current=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.state + " " + .head.sha')
           if [[ "$current" != "open $SOURCE_SHA" ]]; then

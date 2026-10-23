@@ -13,7 +13,7 @@ concurrency:
 jobs:
   pull-request-helper:
     if: >-
-      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'xiang17' &&
       github.event.pull_request.head.repo.id == github.event.repository.id
     runs-on: ubuntu-latest
     steps:
